@@ -4,7 +4,7 @@ Follow the steps above to release the Pedrocf's Azure CV
 
 ## Requirements
 
-* Linux, WSL2 or Mac OS
+* Linux, WSL or Mac OS
 * Make
 * Docker Compose
 
