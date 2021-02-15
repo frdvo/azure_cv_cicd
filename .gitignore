@@ -1,0 +1,5 @@
+.azure/
+.terraform/
+terraform.state
+terraform.tfstate.backup
+_config.tf

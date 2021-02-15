@@ -1,14 +1,3 @@
-locals {
-  # Enter Name Prefix
-  name_prefix = "***REMOVED***"
-  # Enter your Azure Cognitive Services End Point
-  end_point = "***REMOVED***"
-  # Enter your Azure Subscription Key
-  subscrition_key = "***REMOVED***"
-  # Enter the closest Azure location
-  location = "Australia East"
-}
-
 # Select Terraform Provider azurerm
 provider "azurerm" {
   version = 2.1
