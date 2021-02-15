@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+
+    aztf:
+      image: zenika/terraform-azure-cli:r4.3-tf0.12.26-azcli2.8.0
+      volumes:
+        - .:/workspace
+        - .azure:/root/.azure
+      working_dir: /workspace 
