@@ -1,0 +1,37 @@
+touch Makefile docker-compose.yml .env
+
+
+Extract Azure subscription_id
+az account list | jq ."[].id"
+Create Service Principal
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/SUBSCRIPTION_ID"
+
+Altogheter 
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$(az account list | jq -r ."[].id")"
+
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$(az account list | docker-compose run --rm jq ."[].id")"
+
+
+sudo docker run -it --rm --entrypoint /bin/sh hashicorp/terraform
+
+docker run -it --rm --entrypoint /usr/local/bin/az mcr.microsoft.com/azure-cli
+
+docker-compose run --rm --entrypoint /bin/sh terraform 
+
+Remove colors from output sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g"
+
+#@$(AZ_VARS) $(DOCKER) --entrypoint /bin/sh terraform
+
+
+Order
+
+use TAG ?= $(shell git rev-parse --short HEAD) as tag
+
+Az login
+Generate Service Principal
+Add Config To Terraform
+Create the infra
+login to docker
+build container
+push to docker
+Refresh container

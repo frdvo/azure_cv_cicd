@@ -1,9 +1,21 @@
-version: "3.7"
+version: "3.9"
 services:
 
-    aztf:
-      image: zenika/terraform-azure-cli:r4.3-tf0.12.26-azcli2.8.0
+    az:
+      image: mcr.microsoft.com/azure-cli:2.9.1
+      env_file: .env
+      entrypoint: /usr/local/bin/az
       volumes:
-        - .:/workspace
+        - .:/opt/app
         - .azure:/root/.azure
-      working_dir: /workspace 
+      working_dir: /opt/app
+
+    jq:
+      image: imega/jq:1.6
+
+    terraform:
+      image: hashicorp/terraform:0.14.7
+      env_file: .env
+      volumes:
+        - .:/opt/app
+      working_dir: /opt/app

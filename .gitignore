@@ -1,5 +1,6 @@
 .azure/
 .terraform/
-terraform.state
+terraform.tfstate
 terraform.tfstate.backup
 _config.tf
+.service_principal.json
