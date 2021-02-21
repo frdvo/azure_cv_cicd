@@ -1,3 +1,4 @@
+# Terraform required providers config
 terraform {
   required_providers {
     azurerm = {
@@ -6,7 +7,6 @@ terraform {
     }
   }
 }
-
 
 # Select Terraform Provider azurerm
 provider "azurerm" {
@@ -17,6 +17,15 @@ provider "azurerm" {
 resource "azurerm_resource_group" "azure_cv" {
   name     = "${local.name_prefix}-flask-cv-web-rg"
   location = local.location
+}
+
+# Create Azure Container Registry
+resource "azurerm_container_registry" "acr" {
+  name                     = regex("[a-z]+","${local.name_prefix}flaskcvwebacr")
+  resource_group_name      = azurerm_resource_group.azure_cv.name
+  location                 = azurerm_resource_group.azure_cv.location
+  sku                      = "Basic"
+  admin_enabled            = false
 }
 
 # Create Azure ACI Container Group
