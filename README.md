@@ -1,6 +1,6 @@
 # Pedrocf Azure CV Automated Build and Release
 
-Follow the steps above to release the Pedrocf's Azure CV
+Follow the steps above to Build and Release the Pedrocf's Azure CV
 
 ## Requirements
 
