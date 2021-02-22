@@ -2,5 +2,6 @@
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
-config.tf
 .service_principal.json
+.acrtoken.json
+
