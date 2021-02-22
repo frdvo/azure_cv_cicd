@@ -27,9 +27,9 @@ Order
 
 use TAG ?= $(shell git rev-parse --short HEAD) as tag
 
-Az login
-Generate Service Principal
-Add Config To Terraform
+Az login ok
+Generate Service Principal ok
+Add Config To Terraform ok
 Create the infra
 login to docker
 build container
