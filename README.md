@@ -4,11 +4,12 @@ Follow the steps above to release the Pedrocf's Azure CV
 
 ## Requirements
 
-* Linux, WSL2 or Mac OS
+* Linux, WSL or Mac OS
 * Make
 * Docker Compose
 
 ## Steps
+
 
 1. Clone this repo: `git clone https://github.com/frdvo/azure_cv_cicd.git` and go to the repo dir
 
