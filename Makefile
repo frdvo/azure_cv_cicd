@@ -1,7 +1,8 @@
 ACR_NAME ?= \
 			$(shell $(DOCKER) terraform -chdir=./tf_acr output acr_name \
 			| $(DOCKER) jq -r)
-ARM_CLIENT_ID ?= $(shell cat .service_principal.json | $(DOCKER) jq -r .appId)
+ARM_CLIENT_ID ?= \
+			$(shell cat .service_principal.json | $(DOCKER) jq -r .appId)
 ARM_CLIENT_SECRET ?= \
 			$(shell cat .service_principal.json | $(DOCKER) jq -r .password)
 ARM_SUBSCRIPTION_ID ?= \
@@ -13,12 +14,17 @@ AZ_VARS ?= \
 			ARM_CLIENT_SECRET='$(ARM_CLIENT_SECRET)' \
 			ARM_SUBSCRIPTION_ID='$(ARM_SUBSCRIPTION_ID)' \
 			ARM_TENANT_ID='$(ARM_TENANT_ID)'
-CONTAINER_NAME ?= azure_cv
-DOCKER ?= docker-compose run --rm -T
-DOCKER_ACCESS_TOKEN ?= $(shell cat .acrtoken.json | $(DOCKER) jq -r .accessToken)
-DOCKER_LOGIN_SERVER ?= $(shell cat .acrtoken.json | $(DOCKER) jq -r .loginServer)
+CONTAINER_NAME ?= \
+				azure_cv
+DOCKER ?= \
+			docker-compose run --rm -T
+DOCKER_ACCESS_TOKEN ?= \
+			$(shell cat .acrtoken.json | $(DOCKER) jq -r .accessToken)
+DOCKER_LOGIN_SERVER ?= \
+			$(shell cat .acrtoken.json | $(DOCKER) jq -r .loginServer)
 END_POINT ?=
-LOCATION ?=
+LOCATION ?= \
+			"Australia East"
 NAME_PREFIX ?=
 RG_NAME ?= \
 			$(shell $(DOCKER) terraform -chdir=./tf_acr output rg_name \
