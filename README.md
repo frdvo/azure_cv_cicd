@@ -22,8 +22,7 @@ export SUBSCRIPTION_KEY="Enter your Azure Cognitive Services SUBSCRIPTION_KEY"
 export LOCATION="Your Azure Nearest Location eg: Australia East"
 ````
 
-3. Copy and paste the text above in your terminal and press enter
-4. run `make prepare` to login to Azure, deploy ACR and configure your local Docker
-5. run `make bp` to build and publish the container
-6. `make deploy` to deploy the container
-7. run `make clean` to clean the resources. You have to confirm to destroy each resource (ACI and ACR)
+3. Copy and paste the text above in your terminal and press enter and run the following commands
+4. `make prepare` to login to Azure, deploy ACR and configure your local Docker
+5. `make bpd` to build, publish and deploy the container
+6. `make clean` to clean the resources. You have to confirm to destroy each resource (ACI and ACR)

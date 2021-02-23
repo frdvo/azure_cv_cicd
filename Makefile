@@ -50,13 +50,11 @@ azsp:
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
-bp: build publish
+bp: build publish deploy-aci
 
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
-
-deploy: deploy-aci
 
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
