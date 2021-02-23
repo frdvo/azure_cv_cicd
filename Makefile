@@ -50,6 +50,11 @@ azsp:
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
+clean:
+	@echo "🧹🧹🧹 Cleaning..."
+	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci destroy
+	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy
+
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
@@ -85,7 +90,10 @@ publish:
 	@echo "🚀📦⛅Pushing container..."
 	docker push ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG}
 
-clean:
-	@echo "🧹🧹🧹 Cleaning..."
-	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci destroy
-	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy
+test:
+	@echo "🧪🧪🧪 Testing..."
+	@echo "Access the application on http://0.0.0.0:5000/upload-image"
+	@docker run -p 5000:5000 --rm -e SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY} \
+	-e END_POINT=${END_POINT} \
+	${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} \
+	python app.py run -h 0.0.0.0
