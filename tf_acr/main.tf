@@ -15,7 +15,7 @@ provider "azurerm" {
 
 # Create Azure Resource Grop
 resource "azurerm_resource_group" "azure_cv" {
-  name     = "${var.name_prefix}-flask-cv-web-aci-rg"
+  name     = "${var.name_prefix}-flask-cv-web-rg"
   location = var.location
 }
 
