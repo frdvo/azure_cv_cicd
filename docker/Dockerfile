@@ -9,15 +9,22 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install dependencies
-RUN pip install --upgrade pip
-COPY ./requirements.txt /usr/src/app/requirements.txt
-RUN pip install -r requirements.txt
-
-# Open CV dependencies
-
-RUN apt-get update ##[edited]
-RUN apt-get install ffmpeg libsm6 libxext6  -y
+# install dependencies and Open CV
+COPY ./requirements.txt \
+    /usr/src/app/requirements.txt
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+    ffmpeg \
+    libsm6 \
+    libxext6 && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    apt-get remove -y \
+    python-pip \
+    curl &&\
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
 # copy project
 COPY . /usr/src/app/

@@ -43,8 +43,12 @@ dockerlogin: dockercredentials
 	@docker login ${DOCKER_LOGIN_SERVER} -u 00000000-0000-0000-0000-000000000000 -p ${DOCKER_ACCESS_TOKEN}
 
 dockercredentials:
-	@echo "Getting Docker Credentials..."
+	@echo "💳🐳 Getting Docker Credentials..."
 	@$(DOCKER) az acr login -n $(ACR_NAME) --expose-token > .acrtoken.json
+
+dockerpull:
+	@echo "🐋⬇ Pulling Docker Containers..."
+	@ docker-compose pull
 
 publish:
 	@echo "🚀📦⛅Pushing container..."
