@@ -50,7 +50,7 @@ azsp:
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
-bp: build publish deploy-aci
+bpd: build publish deploy-aci
 
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
