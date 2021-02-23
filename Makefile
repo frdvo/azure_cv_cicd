@@ -29,7 +29,7 @@ LOCATION ?= \
 NAME_PREFIX ?=
 RG_NAME ?= \
 	$(shell $(DOCKER) terraform -chdir=./tf_acr output rg_name \
-	$(DOCKER) jq -r)
+	| $(DOCKER) jq -r)
 SUBSCRIPTION_KEY ?=
 TAG ?= \
 	$(shell git rev-parse --short HEAD)
