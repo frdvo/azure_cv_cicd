@@ -23,14 +23,17 @@ DOCKER_ACCESS_TOKEN ?= \
 	$(shell cat .acrtoken.json | $(DOCKER) jq -r .accessToken)
 DOCKER_LOGIN_SERVER ?= \
 	$(shell cat .acrtoken.json | $(DOCKER) jq -r .loginServer)
-END_POINT ?=
+END_POINT ?= \
+
 LOCATION ?= \
 	australiaeast
-NAME_PREFIX ?=
+NAME_PREFIX ?= \
+
 RG_NAME ?= \
 	$(shell $(DOCKER) terraform -chdir=./tf_acr output rg_name \
 	| $(DOCKER) jq -r)
-SUBSCRIPTION_KEY ?=
+SUBSCRIPTION_KEY ?= \
+
 TAG ?= \
 	$(shell git rev-parse --short HEAD)
 TF_ACI_VARS ?= \
@@ -48,56 +51,68 @@ TF_ACR_VARS ?= \
 	TF_VAR_name_prefix='$(NAME_PREFIX)' \
 	TF_VAR_location='$(LOCATION)'
 
-
+.PHONY: azlogin
 azlogin:
 	@echo "🔒🔒🔒 Azure Login..."
 	@$(DOCKER) az login --use-device-code
 
+.PHONY: azsp
 azsp:
 	@echo "🔑🔑🔑 Creating Service Principal..."
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
+.PHONY: clean
 clean:
 	@echo "🧹🧹🧹 Cleaning..."
 	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci destroy
 	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy
 
+.PHONY: build
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
 
+.PHONY: deploy
 deploy: publish deploy-aci
 
+.PHONY: deploy-aci
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
 	@$(AZ_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
 
+.PHONY: deploy-acr
 deploy-acr: 
 	@echo "📦📦📦 Create ACR..."
 	@$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
 	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
 
+.PHONY: dockerlogin
 dockerlogin: dockercredentials
 	@echo "🐳 Docker Login to ACR.."
 	@docker login ${DOCKER_LOGIN_SERVER} -u 00000000-0000-0000-0000-000000000000 \
 	-p ${DOCKER_ACCESS_TOKEN}
 
+.PHONY: dockercredentials
 dockercredentials:
 	@echo "💳🐳 Getting Docker Credentials..."
 	@$(DOCKER) az acr login -n $(ACR_NAME) --expose-token > .acrtoken.json
 
+.PHONY: dockerpull
 dockerpull:
 	@echo "🐋⬇ Pulling Docker Containers..."
 	@ docker-compose pull
 
+.PHONY: prepare
 prepare: dockerpull azlogin azsp deploy-acr dockerlogin
 
+.PHONY: publish
 publish:
 	@echo "🚀📦⛅Pushing container..."
 	docker push ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG}
 
+.PHONY: test
 test:
 	@echo "🧪🧪🧪 Testing..."
 	@echo "Access the application on http://0.0.0.0:5000/upload-image"
