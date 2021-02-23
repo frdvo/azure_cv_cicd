@@ -50,11 +50,11 @@ azsp:
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
-bpd: build publish deploy-aci
-
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
+
+deploy: publish deploy-aci
 
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
@@ -62,7 +62,7 @@ deploy-aci:
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
 
 deploy-acr: 
-	@echo "🚢🚢🚢 Deploying..."
+	@echo "📦📦📦 Create ACR..."
 	@$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
 	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
 

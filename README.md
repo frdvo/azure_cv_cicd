@@ -24,5 +24,6 @@ export LOCATION="Your Azure Nearest Location eg: Australia East"
 
 3. Copy and paste the text above in your terminal and press enter and run the following commands
 4. `make prepare` to login to Azure, deploy ACR and configure your local Docker
-5. `make bpd` to build, publish and deploy the container
-6. `make clean` to clean the resources. You have to confirm to destroy each resource (ACI and ACR)
+5. `make build` to build the container
+6. `make deploy` to publish the contatainer and deploy ACI
+7. `make clean` to clean the resources. You have to confirm to destroy each resource (ACI and ACR)
