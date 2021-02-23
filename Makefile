@@ -50,19 +50,23 @@ azsp:
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
 
+bp: build publish
+
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
 
+deploy: deploy-aci
+
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
 	@$(AZ_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
-	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply
+	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
 
 deploy-acr: 
 	@echo "🚢🚢🚢 Deploying..."
 	@$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
-	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply
+	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
 
 dockerlogin: dockercredentials
 	@echo "🐳 Docker Login to ACR.."
@@ -76,6 +80,8 @@ dockercredentials:
 dockerpull:
 	@echo "🐋⬇ Pulling Docker Containers..."
 	@ docker-compose pull
+
+prepare: dockerpull azlogin azsp deploy-acr dockerlogin
 
 publish:
 	@echo "🚀📦⛅Pushing container..."
