@@ -51,72 +51,78 @@ TF_ACR_VARS ?= \
 	TF_VAR_name_prefix='$(NAME_PREFIX)' \
 	TF_VAR_location='$(LOCATION)'
 
-.PHONY: azlogin
 azlogin:
 	@echo "🔒🔒🔒 Azure Login..."
 	@$(DOCKER) az login --use-device-code
+.PHONY: azlogin
 
-.PHONY: azsp
 azsp:
 	@echo "🔑🔑🔑 Creating Service Principal..."
 	@$(DOCKER) az ad sp create-for-rbac --role="Contributor" \
 	--scopes="/subscriptions/$(ARM_SUBSCRIPTION_ID)" > .service_principal.json
+.PHONY: azsp
 
-.PHONY: clean
+
 clean:
 	@echo "🧹🧹🧹 Cleaning..."
 	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci destroy
 	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy
+.PHONY: clean
 
-.PHONY: build
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
+.PHONY: build
 
-.PHONY: deploy
 deploy: publish deploy-aci
+.PHONY: deploy
 
-.PHONY: deploy-aci
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
 	@$(AZ_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
+.PHONY: deploy-aci
 
-.PHONY: deploy-acr
 deploy-acr: 
 	@echo "📦📦📦 Create ACR..."
 	@$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
 	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
+.PHONY: deploy-acr
 
-.PHONY: dockerlogin
 dockerlogin: dockercredentials
 	@echo "🐳 Docker Login to ACR.."
 	@docker login ${DOCKER_LOGIN_SERVER} -u 00000000-0000-0000-0000-000000000000 \
 	-p ${DOCKER_ACCESS_TOKEN}
+.PHONY: dockerlogin
 
-.PHONY: dockercredentials
 dockercredentials:
 	@echo "💳🐳 Getting Docker Credentials..."
 	@$(DOCKER) az acr login -n $(ACR_NAME) --expose-token > .acrtoken.json
+.PHONY: dockercredentials
 
-.PHONY: dockerpull
 dockerpull:
 	@echo "🐋⬇ Pulling Docker Containers..."
 	@ docker-compose pull
+.PHONY: dockerpull
 
-.PHONY: prepare
 prepare: dockerpull azlogin azsp deploy-acr dockerlogin
+.PHONY: prepare
 
-.PHONY: publish
 publish:
 	@echo "🚀📦⛅Pushing container..."
 	docker push ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG}
+.PHONY: publish
 
-.PHONY: test
 test:
-	@echo "🧪🧪🧪 Testing..."
-	@echo "Access the application on http://0.0.0.0:5000/upload-image"
+	@echo "🧪🧪🧪 Testing on local computer..."
+	@echo ""
+	@echo "--------------Access the application on:----------------------"
+	@echo "----------\033[33m http://localhost:5000/upload-image\033[39m ----------------"
+	@echo "----------------(Press CTRL+C to quit)------------------------"
+	@echo "--------------------------------------------------------------"
+	@echo ""
 	@docker run -p 5000:5000 --rm -e SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY} \
 	-e END_POINT=${END_POINT} \
 	${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} \
 	python app.py run -h 0.0.0.0
+.PHONY: test
