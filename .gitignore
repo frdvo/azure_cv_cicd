@@ -4,4 +4,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .service_principal.json
 .acrtoken.json
+auto_backend.tf
 

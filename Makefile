@@ -90,18 +90,18 @@ deploy: publish deploy-aci
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
 	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
-		echo 'terraform {' > ./tf_acr/backend.tf && \
-		echo '  backend "azurerm" {' >> ./tf_acr/backend.tf && \
+		echo 'terraform {' > ./tf_aci/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_aci/auto_backend.tf && \
 		echo '      resource_group_name  = "${BACKEND_RG}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_aci/auto_backend.tf && \
 		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_aci/auto_backend.tf && \
 		echo '      container_name       = "${BACKEND_CONTAINER}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_aci/auto_backend.tf && \
 		echo '      key                  = "aci${NAME_PREFIX}${BACKEND_KEY}"' \
-			>> ./tf_acr/backend.tf && \
-		echo '  }' >> ./tf_acr/backend.tf && \
-		echo '}' >> ./tf_acr/backend.tf ;\
+			>> ./tf_aci/auto_backend.tf && \
+		echo '  }' >> ./tf_aci/auto_backend.tf && \
+		echo '}' >> ./tf_aci/auto_backend.tf ;\
 	fi
 	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
@@ -110,18 +110,18 @@ deploy-aci:
 deploy-acr: 
 	@echo "📦📦📦 Create ACR..."
 	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
-		echo 'terraform {' > ./tf_acr/backend.tf && \
-		echo '  backend "azurerm" {' >> ./tf_acr/backend.tf && \
+		echo 'terraform {' > ./tf_acr/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_acr/auto_backend.tf && \
 		echo '      resource_group_name  = "${BACKEND_RG}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_acr/auto_backend.tf && \
 		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_acr/auto_backend.tf && \
 		echo '      container_name       = "${BACKEND_CONTAINER}"' \
-			>> ./tf_acr/backend.tf && \
+			>> ./tf_acr/auto_backend.tf && \
 		echo '      key                  = "acr${NAME_PREFIX}${BACKEND_KEY}"' \
-			>> ./tf_acr/backend.tf && \
-		echo '  }' >> ./tf_acr/backend.tf && \
-		echo '}' >> ./tf_acr/backend.tf ;\
+			>> ./tf_acr/auto_backend.tf && \
+		echo '  }' >> ./tf_acr/auto_backend.tf && \
+		echo '}' >> ./tf_acr/auto_backend.tf ;\
 	fi
 	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
 	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
