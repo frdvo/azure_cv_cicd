@@ -10,8 +10,8 @@ FROM base
 RUN apt-get update && apt-get install \
 ffmpeg -y && \
 apt-get autoremove && \
-rm -rf /var/lib/apt/lists/* \
-&& rm -rf /var/cache/apt/archives
+rm -rf /var/lib/apt/lists/* && \
+rm -rf /var/cache/apt/archives
 COPY --from=builder /install /usr/local
 COPY scr /app
 ENV PYTHONDONTWRITEBYTECODE 1
