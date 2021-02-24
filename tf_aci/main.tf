@@ -34,7 +34,6 @@ resource "azurerm_container_group" "azure_cv" {
     image                        = "${var.docker_login_server}/${var.container_name}:${var.container_tag}"
     cpu                          = "0.25"
     memory                       = "0.3"
-    commands                     = ["python", "app.py", "run", "-h", "0.0.0.0"]
     environment_variables        = { "END_POINT" = var.end_point }
     secure_environment_variables = { "SUBSCRIPTION_KEY" = var.subscription_key }
 

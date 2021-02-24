@@ -1,0 +1,6 @@
+azure-cognitiveservices-vision-computervision==0.7.0
+Flask==1.1.2
+msrest==0.6.21
+numpy==1.20.1
+opencv-python==4.5.1.48
+python-dotenv==0.15.0

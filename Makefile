@@ -161,6 +161,5 @@ test:
 	@echo ""
 	@docker run -p 5000:5000 --rm -e SUBSCRIPTION_KEY=${SUBSCRIPTION_KEY} \
 	-e END_POINT=${END_POINT} \
-	${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} \
-	python app.py run -h 0.0.0.0
+	${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG}
 .PHONY: test

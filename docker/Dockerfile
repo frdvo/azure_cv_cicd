@@ -1,30 +1,20 @@
+FROM python:3.8.8-slim as base
 
-# pull official base image
-FROM python:3.8-slim-buster
+FROM base as builder
+RUN mkdir install
+WORKDIR /install
+COPY scr/requirements.txt /requirements.txt
+RUN pip install --prefix /install -r /requirements.txt
 
-# set work directory
-WORKDIR /usr/src/app
-
-# set environment variables
+FROM base
+RUN apt-get update && apt-get install \
+ffmpeg -y && \
+apt-get autoremove && \
+rm -rf /var/lib/apt/lists/* && \
+rm -rf /var/cache/apt/archives
+COPY --from=builder /install /usr/local
+COPY scr /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-# install dependencies and Open CV
-COPY ./requirements.txt \
-    /usr/src/app/requirements.txt
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y \
-    ffmpeg \
-    libsm6 \
-    libxext6 && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    apt-get remove -y \
-    python-pip \
-    curl &&\
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/*
-
-# copy project
-COPY . /usr/src/app/
+WORKDIR /app
+CMD ["python", "app.py", "run", "-h", "0.0.0.0"]
