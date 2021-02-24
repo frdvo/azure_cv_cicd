@@ -1,6 +1,6 @@
 ACR_NAME ?= \
-	$(shell $(DOCKER) terraform -chdir=./tf_acr output acr_name \
-	| $(DOCKER) jq -r)
+	$(shell $(AZ_VARS) $(DOCKER) terraform -chdir=./tf_acr \
+	output acr_name | $(DOCKER) jq -r)
 ARM_CLIENT_ID ?= \
 	$(shell cat .service_principal.json | $(DOCKER) jq -r .appId)
 ARM_CLIENT_SECRET ?= \
@@ -40,7 +40,7 @@ LOCATION ?= \
 NAME_PREFIX ?= \
 
 RG_NAME ?= \
-	$(shell $(DOCKER) terraform -chdir=./tf_acr output rg_name \
+	$(shell $(AZ_VARS) $(DOCKER) terraform -chdir=./tf_acr output rg_name \
 	| $(DOCKER) jq -r)
 SUBSCRIPTION_KEY ?= \
 
