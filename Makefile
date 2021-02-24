@@ -1,6 +1,6 @@
 ACR_NAME ?= \
-	$(shell $(DOCKER) terraform -chdir=./tf_acr output acr_name \
-	| $(DOCKER) jq -r)
+	$(shell $(AZ_VARS) $(DOCKER) terraform -chdir=./tf_acr \
+	output acr_name | $(DOCKER) jq -r)
 ARM_CLIENT_ID ?= \
 	$(shell cat .service_principal.json | $(DOCKER) jq -r .appId)
 ARM_CLIENT_SECRET ?= \
@@ -15,6 +15,16 @@ AZ_VARS ?= \
 	ARM_CLIENT_SECRET='$(ARM_CLIENT_SECRET)' \
 	ARM_SUBSCRIPTION_ID='$(ARM_SUBSCRIPTION_ID)' \
 	ARM_TENANT_ID='$(ARM_TENANT_ID)'
+BACKEND_CONTAINER ?= \
+
+BACKEND_KEY ?= \
+
+BACKEND_RG ?= \
+
+BACKEND_STORAGE_ACCOUNT ?= \
+
+BACKEND_TYPE ?= \
+
 CONTAINER_NAME ?= \
 	azure_cv
 DOCKER ?= \
@@ -30,7 +40,7 @@ LOCATION ?= \
 NAME_PREFIX ?= \
 
 RG_NAME ?= \
-	$(shell $(DOCKER) terraform -chdir=./tf_acr output rg_name \
+	$(shell $(AZ_VARS) $(DOCKER) terraform -chdir=./tf_acr output rg_name \
 	| $(DOCKER) jq -r)
 SUBSCRIPTION_KEY ?= \
 
@@ -79,13 +89,41 @@ deploy: publish deploy-aci
 
 deploy-aci: 
 	@echo "🚢🚢🚢 Deploying..."
-	@$(AZ_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
+	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
+		echo 'terraform {' > ./tf_aci/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_aci/auto_backend.tf && \
+		echo '      resource_group_name  = "${BACKEND_RG}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      container_name       = "${BACKEND_CONTAINER}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      key                  = "aci${NAME_PREFIX}${BACKEND_KEY}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '  }' >> ./tf_aci/auto_backend.tf && \
+		echo '}' >> ./tf_aci/auto_backend.tf ;\
+	fi
+	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
 .PHONY: deploy-aci
 
 deploy-acr: 
 	@echo "📦📦📦 Create ACR..."
-	@$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
+	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
+		echo 'terraform {' > ./tf_acr/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_acr/auto_backend.tf && \
+		echo '      resource_group_name  = "${BACKEND_RG}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      container_name       = "${BACKEND_CONTAINER}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      key                  = "acr${NAME_PREFIX}${BACKEND_KEY}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '  }' >> ./tf_acr/auto_backend.tf && \
+		echo '}' >> ./tf_acr/auto_backend.tf ;\
+	fi
+	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
 	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
 .PHONY: deploy-acr
 
