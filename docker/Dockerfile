@@ -10,8 +10,10 @@ ENV PYTHONUNBUFFERED 1
 
 # install dependencies
 RUN apt-get update && apt-get install \
-ffmpeg -y \
-&& rm -rf /var/lib/apt/lists/*
+ffmpeg -y && \
+apt-get autoremove && \
+rm -rf /var/lib/apt/lists/* \
+&& rm -rf /var/cache/apt/archives
 COPY ./requirements.txt \
     /usr/src/app/requirements.txt
 RUN pip install -r requirements.txt
