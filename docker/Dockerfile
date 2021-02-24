@@ -18,3 +18,6 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY . /usr/src/app/
+
+# run the app
+CMD ["python", "app.py", "run", "-h", "0.0.0.0"]
