@@ -6,9 +6,9 @@ services:
       env_file: .env
       entrypoint: /usr/local/bin/az
       volumes:
-        - .:/opt/app
+        - .:/workspace
         - .azure:/root/.azure
-      working_dir: /opt/app
+      working_dir: /workspace
 
     jq:
       image: imega/jq:1.6
@@ -17,5 +17,5 @@ services:
       image: hashicorp/terraform:0.14.7
       env_file: .env
       volumes:
-        - .:/root
-      working_dir: /root
+        - .:/workspace
+      working_dir: /workspace

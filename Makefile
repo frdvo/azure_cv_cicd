@@ -123,10 +123,17 @@ deploy-acr:
 		echo '      key                  = "acr${NAME_PREFIX}${BACKEND_KEY}"' \
 			>> ./tf_acr/auto_backend.tf && \
 		echo '  }' >> ./tf_acr/auto_backend.tf && \
-		echo '}' >> ./tf_acr/auto_backend.tf ;\
+		echo '}' >> ./tf_acr/auto_backend.tf && \
+		$(AZ_VARS) $(DOCKER) az storage copy -s \
+		https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/${BACKEND_CONTAINER}/acr-${BACKEND_PLAN_KEY} \
+		 -d /workspace/acr-${BACKEND_PLAN_KEY} && \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply \
+		'/workspace/acr-${BACKEND_PLAN_KEY}'; else \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform \
+		-chdir=./tf_acr apply -auto-approve; \
 	fi
-	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) \
-	$(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply -auto-approve
 .PHONY: deploy-acr
 
 dockerlogin: dockercredentials
@@ -162,13 +169,14 @@ plan-acr:
 		echo '}' >> ./tf_acr/auto_backend.tf && \
 	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) && \
 	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) \
-	terraform -chdir=./tf_acr plan -out='${BACKEND_PLAN_KEY}' && \
-	$(AZ_VARS) $(DOCKER) az storage copy --source-local-path ${BACKEND_PLAN_KEY} --destination-account-name \
-	${BACKEND_STORAGE_ACCOUNT} --destination-container ${BACKEND_CONTAINER}; \
+	terraform -chdir=./tf_acr plan -out='/workspace/acr-${BACKEND_PLAN_KEY}' && \
+	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
+	https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/\
+	${BACKEND_CONTAINER}/acr-${BACKEND_PLAN_KEY}; \
 	fi
 .PHONY: plan-acr
 
-prepare: dockerpull azlogin azsp deploy-acr dockerlogin
+prepare: dockerpull azlogin azsp plan-acr deploy-acr dockerlogin
 .PHONY: prepare
 
 publish:
