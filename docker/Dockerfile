@@ -8,7 +8,8 @@ RUN pip install --prefix /install -r /requirements.txt
 
 FROM base
 RUN apt-get update && apt-get install \
-ffmpeg -y && \
+libglib2.0-0 \
+libgl1-mesa-glx -y && \
 apt-get autoremove && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /var/cache/apt/archives
