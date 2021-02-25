@@ -15,6 +15,10 @@ AZ_VARS ?= \
 	ARM_CLIENT_SECRET='$(ARM_CLIENT_SECRET)' \
 	ARM_SUBSCRIPTION_ID='$(ARM_SUBSCRIPTION_ID)' \
 	ARM_TENANT_ID='$(ARM_TENANT_ID)'
+BACKEND_ACI_PLAN_URL ?= \
+	https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/${BACKEND_CONTAINER}/aci-${BACKEND_PLAN_KEY}
+BACKEND_ACR_PLAN_URL ?= \
+	https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/${BACKEND_CONTAINER}/acr-${BACKEND_PLAN_KEY}
 BACKEND_CONTAINER ?= \
 
 BACKEND_KEY ?= \
@@ -81,6 +85,12 @@ clean:
 	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy
 .PHONY: clean
 
+clean-force:
+	@echo "💣💥 Cleaning Force..."
+	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci destroy -auto-approve
+	@$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr destroy -auto-approve
+.PHONY: clean-force
+
 build:
 	@echo "🏷️📦🏗️Building and tagging container..."
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
@@ -124,8 +134,7 @@ deploy-acr:
 			>> ./tf_acr/auto_backend.tf && \
 		echo '  }' >> ./tf_acr/auto_backend.tf && \
 		echo '}' >> ./tf_acr/auto_backend.tf && \
-		$(AZ_VARS) $(DOCKER) az storage copy -s \
-		https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/${BACKEND_CONTAINER}/acr-${BACKEND_PLAN_KEY} \
+		$(AZ_VARS) $(DOCKER) az storage copy -s ${BACKEND_ACR_PLAN_URL} \
 		 -d /workspace/acr-${BACKEND_PLAN_KEY} && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply \
@@ -171,10 +180,32 @@ plan-acr:
 	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) \
 	terraform -chdir=./tf_acr plan -out='/workspace/acr-${BACKEND_PLAN_KEY}' && \
 	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
-	https://${BACKEND_STORAGE_ACCOUNT}.blob.core.windows.net/\
-	${BACKEND_CONTAINER}/acr-${BACKEND_PLAN_KEY}; \
+	${BACKEND_ACR_PLAN_URL}; \
 	fi
 .PHONY: plan-acr
+
+plan-aci: 
+	@echo "🚜🚜🚜 Plan ACI..."
+	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
+		echo 'terraform {' > ./tf_aci/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_aci/auto_backend.tf && \
+		echo '      resource_group_name  = "${BACKEND_RG}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      container_name       = "${BACKEND_CONTAINER}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '      key                  = "aci${NAME_PREFIX}${BACKEND_KEY}"' \
+			>> ./tf_aci/auto_backend.tf && \
+		echo '  }' >> ./tf_aci/auto_backend.tf && \
+		echo '}' >> ./tf_aci/auto_backend.tf && \
+	$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && \
+	$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) \
+	terraform -chdir=./tf_aci plan -out='/workspace/aci-${BACKEND_PLAN_KEY}' && \
+	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
+	${BACKEND_ACI_PLAN_URL}; \
+	fi
+.PHONY: plan-aci
 
 prepare: dockerpull azlogin azsp plan-acr deploy-acr dockerlogin
 .PHONY: prepare
