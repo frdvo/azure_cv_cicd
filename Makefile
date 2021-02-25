@@ -19,6 +19,8 @@ BACKEND_CONTAINER ?= \
 
 BACKEND_KEY ?= \
 
+BACKEND_PLAN_KEY ?= \
+
 BACKEND_RG ?= \
 
 BACKEND_STORAGE_ACCOUNT ?= \
@@ -142,6 +144,29 @@ dockerpull:
 	@echo "🐋⬇ Pulling Docker Containers..."
 	@ docker-compose pull
 .PHONY: dockerpull
+
+plan-acr: 
+	@echo "🚜🚜🚜 Plan ACR..."
+	@if [ "${BACKEND_TYPE}" = "remote" ]; then \
+		echo 'terraform {' > ./tf_acr/auto_backend.tf && \
+		echo '  backend "azurerm" {' >> ./tf_acr/auto_backend.tf && \
+		echo '      resource_group_name  = "${BACKEND_RG}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      storage_account_name = "${BACKEND_STORAGE_ACCOUNT}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      container_name       = "${BACKEND_CONTAINER}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '      key                  = "acr${NAME_PREFIX}${BACKEND_KEY}"' \
+			>> ./tf_acr/auto_backend.tf && \
+		echo '  }' >> ./tf_acr/auto_backend.tf && \
+		echo '}' >> ./tf_acr/auto_backend.tf && \
+	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && $(AZ_VARS) && \
+	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) \
+	terraform -chdir=./tf_acr plan -out='${BACKEND_PLAN_KEY}' && \
+	$(AZ_VARS) $(DOCKER) az storage copy --source-local-path ${BACKEND_PLAN_KEY} --destination-account-name \
+	${BACKEND_STORAGE_ACCOUNT} --destination-container ${BACKEND_CONTAINER}; \
+	fi
+.PHONY: plan-acr
 
 prepare: dockerpull azlogin azsp deploy-acr dockerlogin
 .PHONY: prepare

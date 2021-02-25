@@ -17,5 +17,5 @@ services:
       image: hashicorp/terraform:0.14.7
       env_file: .env
       volumes:
-        - .:/opt/app
-      working_dir: /opt/app
+        - .:/root
+      working_dir: /root
