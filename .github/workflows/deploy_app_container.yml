@@ -45,7 +45,7 @@ jobs:
         run: make build
 
       - name: Publish docker container
-        run: make Publish
+        run: make publish
 
       - name: Plan ACI Update Container
         run: make plan-aci
