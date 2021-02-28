@@ -4,25 +4,57 @@
     
 <div class="container">
     <div class="row">
+        
         <div class="col">
 
-            <h1>Azure CV ACI</h1>
-            <h2>Upload an image</h2>
+            <h1>Demo Azure Computer Vision</h1>
+            <h2>Upload Image</h2>
             <hr>
 
             <form action="/upload-image" method="POST" enctype="multipart/form-data">
 
                 <div class="form-group">
-                    <label>Select image</label>
+                    <label></label>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" name="image" id="image">
-                        <label class="custom-file-label" for="image">Select image...</label>
+                        <label class="custom-file-label" for="image"></label>
+                        <div id="file-upload-filename" class="text-muted">
+                            
+                        </div> 
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Upload</button>
+                <button type="submit" class="btn btn-secondary">Upload</button>
 
             </form>
+
+            <script>                    
+                    
+                    var input = document.getElementById( 'image' );
+                    var infoArea = document.getElementById( 'file-upload-filename' );
+
+                    input.addEventListener( 'change', showFileName );
+
+                    function showFileName( event ) {
+                    
+                    // the change event gives us the input it occurred in 
+                    var input = event.srcElement;
+                    
+                    // the input has an array of files in the `files` property, each one has a name that you can use. We're just using the name here.
+                    var fileName = input.files[0].name;
+                    
+                    // use fileName however fits your app best, i.e. add it into a div
+                    infoArea.textContent = 'File name: ' + fileName;
+                    }
+
+            </script>
+
+        </div>
+
+
+        <div class="col">
+
+            </div>
 
         </div>
     </div>

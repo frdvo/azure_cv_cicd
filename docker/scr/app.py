@@ -20,7 +20,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return "hello"
+
+    return redirect('/upload-image')
 
 
 @app.route("/upload-image", methods=["GET", "POST"])
