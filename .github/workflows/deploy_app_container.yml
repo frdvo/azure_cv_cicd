@@ -39,7 +39,7 @@ jobs:
         run: make dockerpull
         
       - name: Local Docker Login
-        run: dockerlogin
+        run: make dockerlogin
 
       - name: Build docker image
         run: make build
