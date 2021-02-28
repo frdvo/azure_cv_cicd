@@ -96,7 +96,7 @@ build:
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
 .PHONY: build
 
-deploy: publish plan-acr deploy-aci
+deploy: publish plan-aci deploy-aci
 .PHONY: deploy
 
 deploy-aci: 
@@ -114,11 +114,11 @@ deploy-aci:
 			>> ./tf_aci/auto_backend.tf && \
 		echo '  }' >> ./tf_aci/auto_backend.tf && \
 		echo '}' >> ./tf_aci/auto_backend.tf ;\
-		$(AZ_VARS) $(DOCKER) az storage copy -s ${BACKEND_ACR_PLAN_URL} \
+		$(AZ_VARS) $(DOCKER) az storage copy -s ${BACKEND_ACI_PLAN_URL} \
 		 -d /workspace/acr-${BACKEND_PLAN_KEY} --only-show-errors && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_aci init && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_aci apply \
-		'/workspace/acr-${BACKEND_PLAN_KEY}'; else \
+		'/workspace/aci-${BACKEND_PLAN_KEY}'; else \
 	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
 	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve; \
 	fi
@@ -207,7 +207,7 @@ plan-aci:
 	$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && \
 	$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) \
 	terraform -chdir=./tf_aci plan -out='/workspace/aci-${BACKEND_PLAN_KEY}' && \
-	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
+	$(AZ_VARS) $(DOCKER) az storage copy -s aci-${BACKEND_PLAN_KEY} -d \
 	${BACKEND_ACI_PLAN_URL} --only-show-errors; \
 	fi
 .PHONY: plan-aci
