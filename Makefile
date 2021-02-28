@@ -96,7 +96,7 @@ build:
 	@cd docker && docker build -t ${DOCKER_LOGIN_SERVER}/${CONTAINER_NAME}:${TAG} .
 .PHONY: build
 
-deploy: publish deploy-aci
+deploy: publish plan-acr deploy-aci
 .PHONY: deploy
 
 deploy-aci: 
@@ -114,9 +114,14 @@ deploy-aci:
 			>> ./tf_aci/auto_backend.tf && \
 		echo '  }' >> ./tf_aci/auto_backend.tf && \
 		echo '}' >> ./tf_aci/auto_backend.tf ;\
-	fi
+		$(AZ_VARS) $(DOCKER) az storage copy -s ${BACKEND_ACR_PLAN_URL} \
+		 -d /workspace/acr-${BACKEND_PLAN_KEY} --only-show-errors && \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_aci init && \
+		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_aci apply \
+		'/workspace/acr-${BACKEND_PLAN_KEY}'; else \
 	@$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci init && $(AZ_VARS) \
-	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve
+	$(TF_ACI_VARS) $(DOCKER) terraform -chdir=./tf_aci apply -auto-approve; \
+	fi
 .PHONY: deploy-aci
 
 deploy-acr: 
@@ -135,7 +140,7 @@ deploy-acr:
 		echo '  }' >> ./tf_acr/auto_backend.tf && \
 		echo '}' >> ./tf_acr/auto_backend.tf && \
 		$(AZ_VARS) $(DOCKER) az storage copy -s ${BACKEND_ACR_PLAN_URL} \
-		 -d /workspace/acr-${BACKEND_PLAN_KEY} && \
+		 -d /workspace/acr-${BACKEND_PLAN_KEY} --only-show-errors && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr init && \
 		$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) terraform -chdir=./tf_acr apply \
 		'/workspace/acr-${BACKEND_PLAN_KEY}'; else \
@@ -180,7 +185,7 @@ plan-acr:
 	$(AZ_VARS) $(TF_ACR_VARS) $(DOCKER) \
 	terraform -chdir=./tf_acr plan -out='/workspace/acr-${BACKEND_PLAN_KEY}' && \
 	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
-	${BACKEND_ACR_PLAN_URL}; \
+	${BACKEND_ACR_PLAN_URL} --only-show-errors; \
 	fi
 .PHONY: plan-acr
 
@@ -203,12 +208,59 @@ plan-aci:
 	$(AZ_VARS) $(TF_ACI_VARS) $(DOCKER) \
 	terraform -chdir=./tf_aci plan -out='/workspace/aci-${BACKEND_PLAN_KEY}' && \
 	$(AZ_VARS) $(DOCKER) az storage copy -s acr-${BACKEND_PLAN_KEY} -d \
-	${BACKEND_ACI_PLAN_URL}; \
+	${BACKEND_ACI_PLAN_URL} --only-show-errors; \
 	fi
 .PHONY: plan-aci
 
 prepare: dockerpull azlogin azsp plan-acr deploy-acr dockerlogin
 .PHONY: prepare
+
+printvars: 
+	@echo ""
+	@echo ""
+	@echo "Print CI/CD Environment Variables"
+	@echo ""
+	@echo "ACR_NAME='${ACR_NAME}'"
+	@echo ""
+	@echo "ARM_CLIENT_ID='${ARM_CLIENT_ID}'"
+	@echo ""
+	@echo "ARM_SUBSCRIPTION_ID='${ARM_SUBSCRIPTION_ID}'"
+	@echo ""
+	@echo "ARM_TENANT_ID='${ARM_TENANT_ID}'"
+	@echo ""
+	@echo "DOCKER_LOGIN_SERVER='${DOCKER_LOGIN_SERVER}'"
+	@echo ""
+	@echo "END_POINT='${END_POINT}'"
+	@echo ""
+	@echo "LOCATION='${LOCATION}'"
+	@echo ""
+	@echo "NAME_PREFIX='${NAME_PREFIX}'"
+	@echo ""
+	@echo "BACKEND_TYPE='${BACKEND_TYPE}'"
+	@echo ""
+	@echo "BACKEND_RG='${BACKEND_RG}'"
+	@echo ""
+	@echo "BACKEND_STORAGE_ACCOUNT='${BACKEND_STORAGE_ACCOUNT}'"
+	@echo ""
+	@echo "BACKEND_CONTAINER='${BACKEND_CONTAINER}'"
+	@echo ""
+	@echo "BACKEND_KEY='${BACKEND_KEY}'"
+	@echo ""
+	@echo "BACKEND_PLAN_KEY='${BACKEND_PLAN_KEY}'"
+	@echo ""
+	@echo "RG_NAME='${RG_NAME}'"
+	@echo ""
+	@echo ""
+	@echo "================================================="
+	@echo "======== WARNING SENSITIVE VALUES BELOW ========="
+	@echo "================================================="
+	@echo ""
+	@echo "ARM_CLIENT_SECRET='${ARM_CLIENT_SECRET}'"
+	@echo ""
+	@echo "DOCKER_ACCESS_TOKEN='${DOCKER_ACCESS_TOKEN}'"
+	@echo ""
+	@echo "SUBSCRIPTION_KEY='${SUBSCRIPTION_KEY}'"
+
 
 publish:
 	@echo "🚀📦⛅Pushing container..."
