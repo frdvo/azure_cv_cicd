@@ -21,13 +21,14 @@ export END_POINT="Enter your Azure Cognitive Services End Point"
 export SUBSCRIPTION_KEY="Enter your Azure Cognitive Services SUBSCRIPTION_KEY"
 export LOCATION="Your Azure Nearest Location eg: Australia East"
 
-# If you are using AzureRM remote backend also fill up the following variables
+# If you are using AzureRM remote backend, and saving the plan output also fill up the following variables
 
 export BACKEND_TYPE="remote"
 export BACKEND_RG="Enter the Resource Group of your backend storage account"
 export BACKEND_STORAGE_ACCOUNT="Enter your backend storage account name"
 export BACKEND_CONTAINER="Enter your backend storage account container name"
 export BACKEND_KEY="Enter your backend key, it will be prefixed acr and aci"
+export BACKEND_PLAN_KEY="Enter your Terraform plan key, it will be prefixed acr and aci"
 ````
 
 3. Copy and paste the text above in your terminal and press enter and run the following commands
