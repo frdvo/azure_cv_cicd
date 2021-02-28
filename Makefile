@@ -150,7 +150,7 @@ deploy-acr:
 	fi
 .PHONY: deploy-acr
 
-dockerlogin: dockercredentials
+dockerlogin:
 	@echo "🐳 Docker Login to ACR.."
 	@docker login ${DOCKER_LOGIN_SERVER} -u 00000000-0000-0000-0000-000000000000 \
 	-p ${DOCKER_ACCESS_TOKEN}
@@ -212,7 +212,7 @@ plan-aci:
 	fi
 .PHONY: plan-aci
 
-prepare: dockerpull azlogin azsp plan-acr deploy-acr dockerlogin
+prepare: dockerpull azlogin azsp plan-acr deploy-acr dockercredentials dockerlogin
 .PHONY: prepare
 
 printvars: 
