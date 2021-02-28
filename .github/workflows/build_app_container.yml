@@ -1,5 +1,4 @@
 name: build_app_container
-
 on:
 
   workflow_dispatch:
@@ -11,13 +10,33 @@ on:
 jobs:
   build_app_container:
     runs-on: ubuntu-20.04
-    
-    env:
-      DOCKER_LOGIN_SERVER: ${{ secrets.DOCKER_LOGIN_SERVER }}
 
+    env:
+      ACR_NAME: ${{ secrets.ACR_NAME }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      DOCKER_LOGIN_SERVER: ${{ secrets.DOCKER_LOGIN_SERVER }}
+      END_POINT: ${{ secrets.END_POINT }}
+      LOCATION: ${{ secrets.LOCATION }}
+      NAME_PREFIX: ${{ secrets.NAME_PREFIX }}
+      BACKEND_TYPE: ${{ secrets.BACKEND_TYPE }}
+      BACKEND_RG: ${{ secrets.BACKEND_RG }}
+      BACKEND_STORAGE_ACCOUNT: ${{ secrets.BACKEND_STORAGE_ACCOUNT }}
+      BACKEND_CONTAINER: ${{ secrets.BACKEND_CONTAINER }}
+      BACKEND_KEY: ${{ secrets.BACKEND_KEY }}
+      BACKEND_PLAN_KEY: ${{ secrets.BACKEND_PLAN_KEY }}
+      RG_NAME: ${{ secrets.RG_NAME }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      SUBSCRIPTION_KEY: ${{ secrets.SUBSCRIPTION_KEY }}
+    
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Preparing environment
+        run: make dockerpull
         
       - name: Building docker image
         run: make build
