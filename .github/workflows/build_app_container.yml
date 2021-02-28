@@ -1,0 +1,19 @@
+name: build_app_container
+
+on:
+
+  workflow_dispatch:
+
+  pull_request:
+    branches: [ master ]
+    paths: [ 'docker/*' ]
+
+jobs:
+  build_app_container:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Building docker image
+        run: make build
