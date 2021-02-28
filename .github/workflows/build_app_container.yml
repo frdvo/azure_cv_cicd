@@ -11,6 +11,10 @@ on:
 jobs:
   build_app_container:
     runs-on: ubuntu-20.04
+    
+    env:
+      DOCKER_LOGIN_SERVER: ${{ secrets.DOCKER_LOGIN_SERVER }}
+
 
     steps:
       - uses: actions/checkout@v2
