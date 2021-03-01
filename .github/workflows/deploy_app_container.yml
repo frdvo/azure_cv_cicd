@@ -35,9 +35,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Preparing environment
+      - name: Preparing 3M Environment
         run: make dockerpull
-        
+
+      - name: Azure Login
+        run: make azsplogin
+
       - name: Local Docker Login
         run: make dockerlogin
 

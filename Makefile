@@ -67,10 +67,15 @@ TF_ACR_VARS ?= \
 	TF_VAR_name_prefix='$(NAME_PREFIX)' \
 	TF_VAR_location='$(LOCATION)'
 
-azlogin:
-	@echo "🔒🔒🔒 Azure Login..."
+azsplogin:
+	@$(DOCKER) az login --service-principal \
+	 --username $(ARM_CLIENT_ID) --password $(ARM_CLIENT_SECRET) \
+	 --tenant $(ARM_TENANT_ID)
+
+azulogin:
+	@echo "🔒🔒🔒 Azure User Login..."
 	@$(DOCKER) az login --use-device-code
-.PHONY: azlogin
+.PHONY: azulogin
 
 azsp:
 	@echo "🔑🔑🔑 Creating Service Principal..."
@@ -212,7 +217,7 @@ plan-aci:
 	fi
 .PHONY: plan-aci
 
-prepare: dockerpull azlogin azsp plan-acr deploy-acr dockercredentials dockerlogin
+prepare: dockerpull azulogin azsp plan-acr deploy-acr dockercredentials dockerlogin
 .PHONY: prepare
 
 printvars: 
