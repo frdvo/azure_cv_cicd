@@ -33,7 +33,6 @@ def upload_image():
             image = request.files["image"]
 
             if not allowed_extention(image.filename):
-                print("file extention not allowed")
                 return redirect(request.url)
 
             im = image.read()
