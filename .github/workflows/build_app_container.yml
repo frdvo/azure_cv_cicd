@@ -5,7 +5,7 @@ on:
 
   pull_request:
     branches: [ master ]
-    paths: [ 'docker/*' ]
+    paths: [ 'docker/**' ]
 
 jobs:
   build_app_container:
