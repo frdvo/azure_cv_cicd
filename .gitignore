@@ -8,3 +8,4 @@ auto_backend.tf
 .env/
 __pycache__/
 environ.sh
+.environ
