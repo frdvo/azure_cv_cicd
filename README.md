@@ -46,4 +46,3 @@ If you are running from a CI/CD Pipeline you have to provide the following Servi
 	ARM_SUBSCRIPTION_ID
 	ARM_TENANT_ID
 ````
-

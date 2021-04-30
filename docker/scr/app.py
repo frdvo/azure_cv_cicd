@@ -18,12 +18,7 @@ END_POINT = os.environ.get("END_POINT", False)
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-
-    return redirect('/upload-image')
-
-
+@app.route('/', methods=["GET", "POST"])
 @app.route("/upload-image", methods=["GET", "POST"])
 def upload_image():
     if request.method == "POST":
@@ -33,7 +28,6 @@ def upload_image():
             image = request.files["image"]
 
             if not allowed_extention(image.filename):
-                print("file extention not allowed")
                 return redirect(request.url)
 
             im = image.read()

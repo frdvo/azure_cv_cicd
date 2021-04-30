@@ -1,0 +1,12 @@
+
+version: '3.7'
+
+services:
+  web:
+    build: .
+    volumes:
+      - ./scr/:/app
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.environ
